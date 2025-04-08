@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import '../../models/portfolio_data.dart';
 import '../../widgets/hover_effect.dart';
 
@@ -133,34 +134,57 @@ class _HomeSectionState extends State<HomeSection>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Hello, I\'m',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
         const SizedBox(height: 8),
-        Text(
-          widget.data.name,
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+        // Typing animation for name
+        AnimatedTextKit(
+          isRepeatingAnimation: false,
+          animatedTexts: [
+            TypewriterAnimatedText(
+              widget.data.name,
+              textStyle: Theme.of(context).textTheme.displayMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              speed: const Duration(milliseconds: 80),
+            ),
+          ],
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(vertical: 8),
+
+        const SizedBox(height: 8),
+
+        // Typing animation for title
+        AnimatedTextKit(
+          isRepeatingAnimation: false,
+          animatedTexts: [
+            TypewriterAnimatedText(
+              widget.data.title,
+              textStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              speed: const Duration(milliseconds: 60),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Text(
-            widget.data.title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
+            widget.data.about.replaceAll(
+              '**',
+              '',
+            ), // Optional: remove markdown formatting
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 14,
+              color: Colors.greenAccent,
+              height: 1.5,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          widget.data.about,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
         ),
         const SizedBox(height: 32),
         // Social Media Icons
@@ -217,9 +241,9 @@ class _HomeSectionState extends State<HomeSection>
               HoverEffect(
                 borderRadius: BorderRadius.circular(24),
                 onTap: () {
-                  // If you'd like the "Download Resume" here, just call the same logic
-                  // you use in the main screen's FAB. For example:
-                  //   context.findAncestorStateOfType<_PortfolioScreenState>()?._downloadCv();
+                  final url =
+                      Uri.base.resolve(widget.data.resumeUrl!).toString();
+                  launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(

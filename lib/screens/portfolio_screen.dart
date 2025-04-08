@@ -77,12 +77,17 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
     });
 
     // Update active section for desktop nav
-    for (int i = _sectionTitles.length - 1; i >= 0; i--) {
+    for (int i = 0; i < _sectionTitles.length; i++) {
       final key = _sectionKeys[_sectionTitles[i]];
       if (key?.currentContext != null) {
         final box = key!.currentContext!.findRenderObject() as RenderBox;
         final position = box.localToGlobal(Offset.zero);
-        if (position.dy <= MediaQuery.of(context).size.height / 2) {
+        final viewportHeight = MediaQuery.of(context).size.height;
+        final sectionTop = position.dy;
+        final sectionBottom = sectionTop + box.size.height;
+        final viewportCenter = viewportHeight / 2;
+
+        if (sectionTop <= viewportCenter && sectionBottom >= viewportCenter) {
           if (_activeSection != i) {
             setState(() => _activeSection = i);
           }
@@ -98,10 +103,13 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
     if (key?.currentContext != null) {
       final box = key!.currentContext!.findRenderObject() as RenderBox;
       final position = box.localToGlobal(Offset.zero);
-      final offset = position.dy + _scrollController.offset;
+      final offset =
+          position.dy -
+          MediaQuery.of(context).padding.top -
+          80; // Account for app bar and padding
 
       _scrollController.animateTo(
-        offset - 100, // Offset for app bar
+        offset,
         duration: const Duration(milliseconds: 800),
         curve: Curves.easeOutQuad,
       );
@@ -154,6 +162,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
             Footer(name: _portfolioData.name),
           ],
         ),
+        title: 'Contact',
       ),
     ];
 
@@ -162,6 +171,9 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
         PageView(
           controller: _pageController,
           scrollDirection: Axis.vertical,
+          onPageChanged: (index) {
+            setState(() => _activeSection = index);
+          },
           children: pages,
         ),
         // Smooth indicator at bottom
@@ -238,67 +250,89 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
       children: [
         _buildSideNavigation(), // The vertical nav bar
         Expanded(
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Home section (no title)
-                  SizedBox(
-                    key: _sectionKeys['Home'],
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 100, bottom: 60),
-                      child: HomeSection(data: _portfolioData),
-                    ),
-                  ),
-                  SectionContainer(
-                    title: 'Experience',
-                    sectionKey: _sectionKeys['Experience'],
-                    child: ExperienceSection(
-                      experiences: _portfolioData.experiences,
-                    ),
-                  ),
-                  SectionContainer(
-                    title: 'Projects',
-                    sectionKey: _sectionKeys['Projects'],
-                    child: ProjectsSection(projects: _portfolioData.projects),
-                  ),
-                  SectionContainer(
-                    title: 'Skills',
-                    sectionKey: _sectionKeys['Skills'],
-                    child: SkillsSection(skills: _portfolioData.skills),
-                  ),
-                  SectionContainer(
-                    title: 'Education',
-                    sectionKey: _sectionKeys['Education'],
-                    child: EducationSection(
-                      educationList: _portfolioData.education,
-                    ),
-                  ),
-                  if (_portfolioData.publications.isNotEmpty)
-                    SectionContainer(
-                      title: 'Publications',
-                      sectionKey: _sectionKeys['Publications'],
-                      child: PublicationsSection(
-                        publications: _portfolioData.publications,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Home section (no title)
+                      SizedBox(
+                        key: _sectionKeys['Home'],
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 100, bottom: 60),
+                          child: HomeSection(data: _portfolioData),
+                        ),
                       ),
-                    ),
-                  SectionContainer(
-                    title: 'Contact',
-                    sectionKey: _sectionKeys['Contact'],
-                    isLastSection: true,
-                    child: ContactSection(data: _portfolioData),
+                      SectionContainer(
+                        title: 'Experience',
+                        sectionKey: _sectionKeys['Experience'],
+                        child: ExperienceSection(
+                          experiences: _portfolioData.experiences,
+                        ),
+                      ),
+                      SectionContainer(
+                        title: 'Projects',
+                        sectionKey: _sectionKeys['Projects'],
+                        child: ProjectsSection(
+                          projects: _portfolioData.projects,
+                        ),
+                      ),
+                      SectionContainer(
+                        title: 'Skills',
+                        sectionKey: _sectionKeys['Skills'],
+                        child: SkillsSection(skills: _portfolioData.skills),
+                      ),
+                      SectionContainer(
+                        title: 'Education',
+                        sectionKey: _sectionKeys['Education'],
+                        child: EducationSection(
+                          educationList: _portfolioData.education,
+                        ),
+                      ),
+                      if (_portfolioData.publications.isNotEmpty)
+                        SectionContainer(
+                          title: 'Publications',
+                          sectionKey: _sectionKeys['Publications'],
+                          child: PublicationsSection(
+                            publications: _portfolioData.publications,
+                          ),
+                        ),
+                      SectionContainer(
+                        title: 'Contact',
+                        sectionKey: _sectionKeys['Contact'],
+                        isLastSection: true,
+                        child: ContactSection(data: _portfolioData),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Footer(name: _portfolioData.name),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Footer(name: _portfolioData.name),
-                  ),
-                  const SizedBox(height: 40),
-                ],
+                ),
               ),
-            ),
+              if (_scrollPosition > 300)
+                Positioned(
+                  bottom: 40,
+                  right: 40,
+                  child: FloatingActionButton(
+                    mini: true,
+                    onPressed: () {
+                      _scrollController.animateTo(
+                        0,
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    child: const Icon(Icons.arrow_upward),
+                  ),
+                ),
+            ],
           ),
         ),
         // Optionally add a vertical smooth indicator for the desktop layout too
@@ -507,14 +541,13 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          // You could add a jump to each page if you wanted:
           for (int i = 0; i < _sectionTitles.length; i++)
             ListTile(
               leading: Icon(_getIconForSection(i)),
               title: Text(_sectionTitles[i]),
+              selected: _activeSection == i,
               onTap: () {
                 Navigator.pop(context);
-                // jump to that page
                 _pageController.animateToPage(
                   i,
                   duration: const Duration(milliseconds: 500),
@@ -556,20 +589,20 @@ class PositionedIndicatorDesktop extends StatelessWidget {
   final ValueChanged<int>? onDotClicked;
 
   const PositionedIndicatorDesktop({
-    Key? key,
+    super.key,
     required this.activeIndex,
     required this.count,
     this.onDotClicked,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     // To place it on top of everything, wrap in a Stack or do a Positioned.
     // In this example, we'll do a "stack" approach.
-    // Because the desktop layout is a Row, we can’t just “Positioned” inside it easily
+    // Because the desktop layout is a Row, we can't just "Positioned" inside it easily
     // without some extra parent stack. So a simpler approach:
-    return const SizedBox.shrink(); // If you don’t want an indicator at all.
-    // If you DO want a desktop indicator, you’d do something like:
+    return const SizedBox.shrink(); // If you don't want an indicator at all.
+    // If you DO want a desktop indicator, you'd do something like:
     /*
     return Align(
       alignment: Alignment.centerRight,

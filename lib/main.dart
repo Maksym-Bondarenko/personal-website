@@ -17,14 +17,21 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeProvider(),
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
-          return MaterialApp(
-            title: 'Portfolio',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme(),
-            darkTheme: AppTheme.darkTheme(),
-            themeMode:
-                themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            home: PortfolioScreen(),
+          return AnimatedTheme(
+            data:
+                themeProvider.isDarkMode
+                    ? AppTheme.darkTheme()
+                    : AppTheme.lightTheme(),
+            duration: const Duration(milliseconds: 500),
+            child: MaterialApp(
+              title: 'Portfolio',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme(),
+              darkTheme: AppTheme.darkTheme(),
+              themeMode:
+                  themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+              home: const PortfolioScreen(),
+            ),
           );
         },
       ),

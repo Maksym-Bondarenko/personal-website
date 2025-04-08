@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_data.dart';
 import '../widgets/hover_effect.dart';
 
@@ -58,6 +60,53 @@ class _EducationCardState extends State<EducationCard>
     super.dispose();
   }
 
+  Widget _buildEducationLogo() {
+    final logoPath = widget.education.logoUrl;
+
+    if (logoPath != null && logoPath.startsWith('assets/')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(logoPath, width: 60, height: 60, fit: BoxFit.cover),
+      );
+    }
+
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        Icons.school,
+        color: Theme.of(context).colorScheme.primary,
+        size: 32,
+      ),
+    );
+  }
+
+  Widget _buildInstitutionText() {
+    final style = Theme.of(context).textTheme.titleLarge?.copyWith(
+      fontWeight: FontWeight.bold,
+      color: Theme.of(context).colorScheme.primary,
+    );
+
+    if (widget.education.url != null) {
+      return GestureDetector(
+        onTap: () => launchUrl(Uri.parse(widget.education.url!)),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Text(
+            widget.education.institution,
+            style: style?.copyWith(decoration: TextDecoration.underline),
+          ),
+        ),
+      );
+    } else {
+      return Text(widget.education.institution, style: style);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -79,33 +128,7 @@ class _EducationCardState extends State<EducationCard>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (widget.education.logoUrl != null) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      widget.education.logoUrl!,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                ] else
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.school,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 32,
-                    ),
-                  ),
+                _buildEducationLogo(),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -115,17 +138,7 @@ class _EducationCardState extends State<EducationCard>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              widget.education.institution,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
+                          Expanded(child: _buildInstitutionText()),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -155,11 +168,18 @@ class _EducationCardState extends State<EducationCard>
                       ),
                       if (widget.education.description != null) ...[
                         const SizedBox(height: 12),
-                        Text(
-                          widget.education.description!,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(height: 1.5),
+                        MarkdownBody(
+                          data: widget.education.description!,
+                          styleSheet: MarkdownStyleSheet.fromTheme(
+                            Theme.of(context),
+                          ).copyWith(
+                            p: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(height: 1.5),
+                          ),
+                          onTapLink: (text, href, title) {
+                            if (href != null) launchUrl(Uri.parse(href));
+                          },
                         ),
                       ],
                     ],

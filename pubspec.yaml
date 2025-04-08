@@ -41,6 +41,12 @@ dependencies:
   visibility_detector: ^0.4.0+2
   smooth_page_indicator: ^1.2.1
   font_awesome_flutter: ^10.8.0
+  flutter_markdown: ^0.7.7
+  flutter_staggered_animations: ^1.1.1
+  animated_text_kit: ^4.2.3
+  flutter_glow: ^0.3.2
+  mouse_parallax: ^1.1.0
+  flutter_glitter_effect: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -65,11 +71,20 @@ flutter:
   uses-material-design: true
 
   assets:
-    - lib/assets/
-    - lib/assets/downloads/
-    - lib/assets/downloads/Maksym_Bondarenko_CV.pdf
-    - lib/assets/profile/
-    - lib/assets/profile/profile_photo.jpg
+    - assets/
+    - assets/downloads/
+    - assets/profile/
+    - assets/logos/
+    - assets/profile/profile_photo.JPG
+    - assets/downloads/Maksym_Bondarenko_CV.pdf
+    - assets/logos/eth_logo.png
+    - assets/logos/tum_logo.png
+    - assets/logos/nure_logo.png
+    - assets/logos/msg_logo.png
+    - assets/logos/sapucc_logo.png
+    - assets/logos/cloudprism_logo.png
+    - assets/logos/streetly_logo.png
+    - assets/logos/dps_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

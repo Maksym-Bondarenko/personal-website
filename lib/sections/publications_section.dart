@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/portfolio_data.dart';
 import '../widgets/hover_effect.dart';
 
@@ -93,11 +94,18 @@ class PublicationCard extends StatelessWidget {
             ),
             if (publication.description != null) ...[
               const SizedBox(height: 12),
-              Text(
-                publication.description!,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(height: 1.5),
+              MarkdownBody(
+                data: publication.description!,
+                styleSheet: MarkdownStyleSheet.fromTheme(
+                  Theme.of(context),
+                ).copyWith(
+                  p: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(height: 1.5),
+                ),
+                onTapLink: (text, href, title) {
+                  if (href != null) _launchUrl(context, href);
+                },
               ),
             ],
             if (publication.url != null) ...[

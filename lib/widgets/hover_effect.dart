@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
-import '../theme/theme.dart';
 
 class HoverEffect extends StatefulWidget {
   final Widget child;
@@ -71,16 +70,11 @@ class _HoverEffectState extends State<HoverEffect> {
             borderRadius:
                 widget.shape == BoxShape.rectangle ? widget.borderRadius : null,
             boxShadow: [
-              if (_isHovered || widget.elevation > 0)
+              if (_isHovered)
                 BoxShadow(
-                  color: Theme.of(context).shadowColor.withOpacity(0.1),
-                  blurRadius:
-                      _isHovered ? widget.hoverElevation : widget.elevation,
-                  spreadRadius:
-                      _isHovered
-                          ? widget.hoverElevation / 4
-                          : widget.elevation / 4,
-                  offset: const Offset(0, 2),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  blurRadius: 20,
+                  spreadRadius: 2,
                 ),
             ],
           ),

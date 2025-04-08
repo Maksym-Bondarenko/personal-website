@@ -40,10 +40,10 @@ class AppTheme {
     Color(0xFFE8F5E9),
   ];
 
-  // Dark mode: Yellow → Blue
+  // Dark mode: Vivid yellow to deep blue gradient
   static const List<Color> _gradientDarkColors = [
-    Color(0xFFFFC107), // Yellow
-    Color(0xFF2196F3), // Blue
+    Color(0xFFFFD600), // Bright Yellow
+    Color(0xFF2962FF), // Bright Blue
   ];
 
   // Social media colors

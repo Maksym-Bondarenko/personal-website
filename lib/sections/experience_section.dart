@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/portfolio_data.dart';
 import '../../widgets/hover_effect.dart';
 
@@ -91,13 +93,27 @@ class _ExperienceCardState extends State<ExperienceCard> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              widget.experience.company,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                            GestureDetector(
+                              onTap: () {
+                                if (widget.experience.url != null) {
+                                  launchUrl(
+                                    Uri.parse(widget.experience.url!),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                widget.experience.company,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  decoration:
+                                      widget.experience.url != null
+                                          ? TextDecoration.underline
+                                          : null,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -131,11 +147,15 @@ class _ExperienceCardState extends State<ExperienceCard> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    widget.experience.description,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(height: 1.6),
+                  MarkdownBody(
+                    data: widget.experience.description,
+                    styleSheet: MarkdownStyleSheet.fromTheme(
+                      Theme.of(context),
+                    ).copyWith(
+                      p: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge?.copyWith(height: 1.6),
+                    ),
                   ),
                 ],
               ),
